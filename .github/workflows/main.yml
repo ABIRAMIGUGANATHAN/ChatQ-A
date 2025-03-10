@@ -1,11 +1,6 @@
-name: Automated Deployment Testing
+name: Update Deployment Config
 
 on:
-  push:
-    branches:
-      - main
-  schedule:
-    - cron: "0 */6 * * *"  # Runs every 6 hours
   workflow_dispatch:
     inputs:
       core_count:
@@ -13,7 +8,7 @@ on:
         required: true
         default: '16'
       memory_capacity:
-        description: 'Memory capacity (Mi)'
+        description: 'Memory capacity (in Mi)'
         required: true
         default: '8000Mi'
       model_id:
@@ -22,43 +17,37 @@ on:
         default: 'meta-llama/Meta-Llama-3-8B-Instruct'
 
 jobs:
-  test-configurations:
+  update-deployment:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        core_count: [8, 16, 32]
-        memory_capacity: ["4000Mi", "8000Mi", "16000Mi"]
-        model_id: ["meta-llama/Meta-Llama-3-8B-Instruct", "meta-llama/Meta-Llama-2-7B-Instruct"]
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.PAT_TOKEN_NEW }}
-          fetch-depth: 0  
+          token: ${{ secrets.PAT_TOKEN }} # Ensure checkout uses PAT
 
-      - name: Pull latest changes
+      - name: Update deploy.yaml
+        run: |
+          sed -i "s/cores_per_instance: \".*\"/cores_per_instance: \"${{ github.event.inputs.core_count }}\"/" benchmark_chatqna.yaml
+          sed -i "s/memory_capacity: \".*\"/memory_capacity: \"${{ github.event.inputs.memory_capacity }}\"/" benchmark_chatqna.yaml
+          sed -i "s|model_id: \".*\"|model_id: \"${{ github.event.inputs.model_id }}\"|" benchmark_chatqna.yaml
+
+      - name: Force Git to Use HTTPS
+        run: |
+          git remote set-url origin https://github.com/ABIRAMIGUGANATHAN/demo.git
+
+      - name: Debug Permissions
+        run: |
+          git remote -v
+          git status
+          git branch
+
+      - name: Commit and push changes
+        env:
+          PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "actions@github.com"
-          git pull --rebase origin main
-
-      - name: Update benchmark_chatqna.yaml
-        run: |
-          sed -i "s/cores_per_instance: \".*\"/cores_per_instance: \"${{ matrix.core_count }}\"/" benchmark_chatqna.yaml
-          sed -i "s/memory_capacity: \".*\"/memory_capacity: \"${{ matrix.memory_capacity }}\"/" benchmark_chatqna.yaml
-          sed -i "s|model_id: \".*\"|model_id: \"${{ matrix.model_id }}\"|" benchmark_chatqna.yaml
-
-      - name: Run Tests
-        run: |
-          echo "Running tests for Core Count: ${{ matrix.core_count }}, Memory: ${{ matrix.memory_capacity }}, Model: ${{ matrix.model_id }}"
-          # Add test command here, e.g., pytest, bash scripts, etc.
-
-      - name: Commit and Push Changes
-        env:
-          PAT_TOKEN: ${{ secrets.PAT_TOKEN_NEW }}
-        run: |
           git add benchmark_chatqna.yaml
-          git commit -m "Auto-test: cores: ${{ matrix.core_count }}, memory: ${{ matrix.memory_capacity }}, model: ${{ matrix.model_id }}"
-          git push https://${{ secrets.PAT_TOKEN_NEW }}@github.com/ABIRAMIGUGANATHAN/demo.git HEAD:main
+          git commit -m "Updated deployment config (cores: ${{ github.event.inputs.core_count }}, memory: ${{ github.event.inputs.memory_capacity }}, model: ${{ github.event.inputs.model_id }})"
+          git push https://${{ secrets.PAT_TOKEN }}@github.com/ABIRAMIGUGANATHAN/demo.git HEAD:main
