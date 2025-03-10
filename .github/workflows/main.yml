@@ -35,7 +35,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.PAT_TOKEN }}
+          token: ${{ secrets.PAT_TOKEN_NEW }}
           fetch-depth: 0  
 
       - name: Pull latest changes
@@ -57,8 +57,8 @@ jobs:
 
       - name: Commit and Push Changes
         env:
-          PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
+          PAT_TOKEN: ${{ secrets.PAT_TOKEN_NEW }}
         run: |
           git add benchmark_chatqna.yaml
           git commit -m "Auto-test: cores: ${{ matrix.core_count }}, memory: ${{ matrix.memory_capacity }}, model: ${{ matrix.model_id }}"
-          git push https://${{ secrets.PAT_TOKEN }}@github.com/ABIRAMIGUGANATHAN/demo.git HEAD:main
+          git push https://${{ secrets.PAT_TOKEN_NEW }}@github.com/ABIRAMIGUGANATHAN/demo.git HEAD:main
