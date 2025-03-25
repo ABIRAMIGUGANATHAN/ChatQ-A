@@ -1,45 +1,30 @@
-name: Deploy_ChatQnA
-
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
-  workflow_dispatch:
-
-jobs:
-  deploy:
+deploy-chatqna:
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
 
-      - name: Set up Environment Variables
-        run: |
-          echo "HOST_IP=${{ secrets.HOST_IP }}" >> $GITHUB_ENV
-          echo "NO_PROXY=${{ secrets.NO_PROXY }}" >> $GITHUB_ENV
-          echo "HUGGINGFACEHUB_API_TOKEN=${{ secrets.HUGGINGFACEHUB_API_TOKEN }}" >> $GITHUB_ENV
-
-      - name: Run ChatQnA Setup Script
-        run: |
-          cd docker_compose/
-          source ./set_env.sh
-
-      - name: Start Docker Compose
-        run: |
-          cd docker_compose/intel/cpu/xeon/
-          docker compose up -d
-
-      - name: Verify Deployment
-        run: |
-          sleep 30
-          curl -X POST "http://${{ env.HOST_IP }}:8888/v1/chatqna" \
-            -H "Content-Type: application/json" \
-            -d '{"messages": "Test deployment success?"}'
-
-      - name: Check Logs (If Deployment Fails)
-        if: failure()
-        run: |
-          docker logs chatqna-xeon-backend-server
+      steps:
+        - name: 📥 Checkout Repository
+          uses: actions/checkout@v4
+    
+        - name: 🐳 Deploy ChatQnA
+          run: |
+            COMPOSE_PATH="docker_compose/intel/cpu/xeon/compose.yaml"
+            docker compose -f $COMPOSE_PATH down  # Stop existing containers
+            docker compose -f $COMPOSE_PATH up -d
+    
+        - name: 🔍 Verify Running Containers
+          run: docker ps -a
+    
+        - name: 🛠 Debug Logs (Optional)
+          if: failure()
+          run: docker compose -f docker_compose/intel/cpu/xeon/compose.yaml logs
+    
+        - name: 📝 Test ChatQnA API
+          run: |
+            sleep 10  # Wait for the service to initialize
+            RESPONSE=$(curl -s -X POST http://localhost:8888/v1/chatqna \
+              -H "Content-Type: application/json" \
+              -d '{"messages": "What is the revenue of Nike in 2023?"}')
+            echo "ChatQnA API Response: $RESPONSE"
+        
+        - name: ✅ Deployment Completed
+          run: echo "ChatQnA deployment successful!"
