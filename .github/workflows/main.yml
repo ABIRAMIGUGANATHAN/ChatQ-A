@@ -24,12 +24,12 @@ jobs:
 
       - name: Run ChatQnA Setup Script
         run: |
-          cd docsum/docker_compose/
+          cd docker_compose/
           source ./set_env.sh
 
       - name: Start Docker Compose
         run: |
-          cd docsum/docker_compose/intel/cpu/xeon/
+          cd docker_compose/intel/cpu/xeon/
           docker compose up -d
 
       - name: Verify Deployment
