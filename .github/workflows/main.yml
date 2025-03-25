@@ -1,30 +1,23 @@
-deploy-chatqna:
-    runs-on: ubuntu-latest
+name: Setup Environment for ChatQnA
 
-      steps:
-        - name: 📥 Checkout Repository
-          uses: actions/checkout@v4
-    
-        - name: 🐳 Deploy ChatQnA
-          run: |
-            COMPOSE_PATH="docker_compose/intel/cpu/xeon/compose.yaml"
-            docker compose -f $COMPOSE_PATH down  # Stop existing containers
-            docker compose -f $COMPOSE_PATH up -d
-    
-        - name: 🔍 Verify Running Containers
-          run: docker ps -a
-    
-        - name: 🛠 Debug Logs (Optional)
-          if: failure()
-          run: docker compose -f docker_compose/intel/cpu/xeon/compose.yaml logs
-    
-        - name: 📝 Test ChatQnA API
-          run: |
-            sleep 10  # Wait for the service to initialize
-            RESPONSE=$(curl -s -X POST http://localhost:8888/v1/chatqna \
-              -H "Content-Type: application/json" \
-              -d '{"messages": "What is the revenue of Nike in 2023?"}')
-            echo "ChatQnA API Response: $RESPONSE"
+on:
+  workflow_dispatch:
+
+jobs:
+  setup-environment:
+    runs-on: ubuntu-latest
+    env:
+      host_ip: 192.168.2.209
+      no_proxy: localhost,127.0.0.1,192.168.2.209
+      HUGGINGFACEHUB_API_TOKEN: ${{ secrets.HUGGINGFACEHUB_API_TOKEN }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
         
-        - name: ✅ Deployment Completed
-          run: echo "ChatQnA deployment successful!"
+      - name: Set environment for Xeon
+        run: |
+          cd ChatQ-A/docker_compose/intel/cpu/xeon/
+          source ./set_env.sh
+          echo "no_proxy=${{ env.no_proxy }},chatqna-xeon-ui-server,chatqna-xeon-backend-server,dataprep-redis-service,tei-embedding-service,retriever,tei-reranking-service,tgi-service,vllm-service,jaeger,prometheus,grafana,xeon-node-exporter-1" >> $GITHUB_ENV
+
