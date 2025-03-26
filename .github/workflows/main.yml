@@ -17,6 +17,7 @@ jobs:
         
       - name: Setup environment for Xeon
         run: |
+          sudo apt-get update && sudo apt-get install -y dos2unix
           cd chatqna/docker_compose/intel/cpu/xeon/
           dos2unix set_env.sh  # fix CRLF issue
           source ./set_env.sh
