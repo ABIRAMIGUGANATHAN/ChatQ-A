@@ -15,9 +15,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         
-      - name: Set environment for Xeon
+      - name: Setup environment for Xeon
         run: |
           cd chatqna/docker_compose/intel/cpu/xeon/
+          dos2unix set_env.sh  # fix CRLF issue
           source ./set_env.sh
-          echo "no_proxy=${{ env.no_proxy }},chatqna-xeon-ui-server,chatqna-xeon-backend-server,dataprep-redis-service,tei-embedding-service,retriever,tei-reranking-service,tgi-service,vllm-service,jaeger,prometheus,grafana,xeon-node-exporter-1" >> $GITHUB_ENV
+          echo "no_proxy=localhost,127.0.0.1,192.168.2.209,chatqna-xeon-ui-server,chatqna-xeon-backend-server,dataprep-redis-service,tei-embedding-service,retriever,tei-reranking-service,tgi-service,vllm-service,jaeger,prometheus,grafana,xeon-node-exporter-1" >> $GITHUB_ENV
+        shell: bash
+        env:
+          host_ip: 192.168.2.209
+          no_proxy: localhost,127.0.0.1,192.168.2.209
+          HUGGINGFACEHUB_API_TOKEN: ${{ secrets.HUGGINGFACEHUB_API_TOKEN }}
+
 
