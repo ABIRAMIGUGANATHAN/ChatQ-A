@@ -11,14 +11,16 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Inject cpuset into compose.yaml
+      - name: Insert cpuset after shm_size
         run: |
-          sed -i '/vllm-service:/,/^[^ ]/ { /shm_size: 128g/a\
-              cpuset: "0-20"\
+          sed -i '/vllm-service:/,/^[^ ]/ {
+            /shm_size: 128g/a\
+            \ \ \ \ cpuset: "0-20"
           }' ChatQnA/docker_compose/intel/cpu/xeon/compose.yaml
       
           echo "Modified compose.yaml:"
           cat ChatQnA/docker_compose/intel/cpu/xeon/compose.yaml
+
 
 
       # - name: Pull image
