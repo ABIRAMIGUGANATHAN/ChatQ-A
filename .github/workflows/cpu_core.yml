@@ -13,9 +13,13 @@ jobs:
 
       - name: Inject cpuset into compose.yaml
         run: |
-          sed -i '/vllm-service:/,/^[^ ]/ {/shm_size: 128g/a\    cpuset: "0-20"'} ChatQnA/docker_compose/intel/cpu/xeon/compose.yaml
+          sed -i '/vllm-service:/,/^[^ ]/ { /shm_size: 128g/a\
+              cpuset: "0-20"\
+          }' ChatQnA/docker_compose/intel/cpu/xeon/compose.yaml
+      
           echo "Modified compose.yaml:"
-          cat chatqna/docker_compose/intel/cpu/xeon/compose.yaml
+          cat ChatQnA/docker_compose/intel/cpu/xeon/compose.yaml
+
 
       # - name: Pull image
       #   run: docker compose -f chatqna/docker_compose/intel/cpu/xeon/compose.yaml pull
