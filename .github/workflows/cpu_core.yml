@@ -15,11 +15,12 @@ jobs:
         run: |
           sed -i '/vllm-service:/,/^[^ ]/ {
             /shm_size: 128g/a\
-            \ \ \ \ cpuset: "0-20"
+              cpuset: "0-20"
           }' chatqna/docker_compose/intel/cpu/xeon/compose.yaml
       
           echo "Modified compose.yaml:"
           cat chatqna/docker_compose/intel/cpu/xeon/compose.yaml
+
 
 
 
