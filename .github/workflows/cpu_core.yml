@@ -15,7 +15,7 @@ jobs:
         run: |
           sed -i '/vllm-service:/a\ \ \ \ cpuset: "0-20"' chatqna/docker_compose/intel/cpu/xeon/compose.yaml
           echo "Modified compose.yaml:"
-          cat docker_compose/intel/cpu/xeon/compose.yaml
+          cat chatqna/docker_compose/intel/cpu/xeon/compose.yaml
 
       - name: Pull image
         run: docker compose -f chatqna/docker_compose/intel/cpu/xeon/compose.yaml pull
