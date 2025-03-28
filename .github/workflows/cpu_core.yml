@@ -1,0 +1,53 @@
+name: CPU Pinned ChatQnA Benchmark
+
+on:
+  workflow_dispatch:
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Inject cpuset into compose.yaml
+        run: |
+          sed -i '/vllm-service:/a\ \ \ \ cpuset: "0-20"' docker_compose/intel/cpu/xeon/compose.yaml
+          echo "Modified compose.yaml:"
+          cat docker_compose/intel/cpu/xeon/compose.yaml
+
+      - name: Pull image
+        run: docker compose -f docker_compose/intel/cpu/xeon/compose.yaml pull
+
+      - name: Start ChatQnA service (CPU cores 0–20)
+        run: docker compose -f docker_compose/intel/cpu/xeon/compose.yaml up -d
+
+      - name: Wait for service to start
+        run: sleep 20
+
+      - name: Send test QnA request and log response time
+        run: |
+          START=$(date +%s%3N)
+          curl -s -o response.json -w "Response time: %{time_total}s\n" http://localhost:8888/v1/chatqna \
+            -H "Content-Type: application/json" \
+            -d '{
+                  "messages": "What is the revenue of Nike in 2023?"
+                }'
+          END=$(date +%s%3N)
+          echo "Total elapsed: $((END - START)) ms"
+          cat response.json
+
+      - name: Dump container logs
+        run: docker logs chatqna_pinned > chatqna_logs.txt
+
+      - name: Upload logs
+        uses: actions/upload-artifact@v3
+        with:
+          name: chatqna-benchmark-logs
+          path: |
+            response.json
+            chatqna_logs.txt
+
+      - name: Tear down
+        run: docker compose -f docker_compose/intel/cpu/xeon/compose.yaml down
