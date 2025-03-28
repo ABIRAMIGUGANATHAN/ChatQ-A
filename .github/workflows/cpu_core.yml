@@ -13,15 +13,15 @@ jobs:
 
       - name: Inject cpuset into compose.yaml
         run: |
-          sed -i '/vllm-service:/a\ \ \ \ cpuset: "0-20"' docker_compose/intel/cpu/xeon/compose.yaml
+          sed -i '/vllm-service:/a\ \ \ \ cpuset: "0-20"' chatqna/docker_compose/intel/cpu/xeon/compose.yaml
           echo "Modified compose.yaml:"
           cat docker_compose/intel/cpu/xeon/compose.yaml
 
       - name: Pull image
-        run: docker compose -f docker_compose/intel/cpu/xeon/compose.yaml pull
+        run: docker compose -f chatqna/docker_compose/intel/cpu/xeon/compose.yaml pull
 
       - name: Start ChatQnA service (CPU cores 0–20)
-        run: docker compose -f docker_compose/intel/cpu/xeon/compose.yaml up -d
+        run: docker compose -f chatqna/docker_compose/intel/cpu/xeon/compose.yaml up -d
 
       - name: Wait for service to start
         run: sleep 20
@@ -50,4 +50,4 @@ jobs:
             chatqna_logs.txt
 
       - name: Tear down
-        run: docker compose -f docker_compose/intel/cpu/xeon/compose.yaml down
+        run: docker compose -f chatqna/docker_compose/intel/cpu/xeon/compose.yaml down
