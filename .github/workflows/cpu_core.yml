@@ -68,7 +68,7 @@ jobs:
         run: docker logs chatqna_pinned > chatqna_logs.txt
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@main
         with:
           name: my-artifact
           path: |
