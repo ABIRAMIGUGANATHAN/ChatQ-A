@@ -34,14 +34,11 @@ jobs:
           echo "Modified compose.yaml:"
           cat chatqna/docker_compose/intel/cpu/xeon/compose.yaml
 
+      - name: Pull image
+        run: docker compose -f chatqna/docker_compose/intel/cpu/xeon/compose.yaml pull
 
-
-
-      # - name: Pull image
-      #   run: docker compose -f chatqna/docker_compose/intel/cpu/xeon/compose.yaml pull
-
-      # - name: Start ChatQnA service (CPU cores 0–20)
-      #   run: docker compose -f chatqna/docker_compose/intel/cpu/xeon/compose.yaml up -d
+      - name: Start ChatQnA service (CPU cores 0–20)
+        run: docker compose -f chatqna/docker_compose/intel/cpu/xeon/compose.yaml up -d
 
       # - name: Wait for service to start
       #   run: sleep 20
