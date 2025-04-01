@@ -2,7 +2,20 @@ name: CPU Pinned ChatQnA Benchmark
 
 on:
   workflow_dispatch:
-
+    inputs:
+      CPU_CORE:
+        description: 'Core_Count'
+        required: true
+        default: '0-20'
+        type: choice
+        options:
+          - '0-20'
+          - '0-50'
+          - '0-100'
+          - '0-200'
+          - '0-240'
+          - '0-480'
+        
 jobs:
   benchmark:
     runs-on: ubuntu-latest
@@ -15,7 +28,7 @@ jobs:
         run: |
           sed -i '/vllm-service:/,/^[^ ]/ {
             /shm_size: 128g/a\
-              cpuset: "0-20"
+              cpuset: ${{ github.event.inputs.CPU_CORE }} 
           }' chatqna/docker_compose/intel/cpu/xeon/compose.yaml
       
           echo "Modified compose.yaml:"
