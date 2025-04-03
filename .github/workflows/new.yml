@@ -1,0 +1,23 @@
+name: Run Shell Script with User Question
+
+on:
+  workflow_dispatch:
+    inputs:
+      user_question:
+        description: "What is your name?"
+        required: true
+        type: string
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Make script executable
+        run: chmod +x script.sh
+
+      - name: Run Shell Script with User Input
+        run: ./script.sh "${{ inputs.user_question }}"
