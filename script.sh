@@ -6,8 +6,8 @@ deploy_type=$2
 QUESTION=$3
 INPUT_JSON="{\"messages\": \"$QUESTION\"}"
 
-echo "sending question to the API: $QUESTION
-echo "sending question to the API: $INPUT_JSON
+echo "sending question to the API: $QUESTION"
+echo "sending question to the API: $INPUT_JSON"
 
 # Echo the inputs for debugging
 echo "🚀 Load Time: $load_time"
