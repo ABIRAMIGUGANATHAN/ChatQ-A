@@ -37,5 +37,5 @@ jobs:
     steps:
       - name: Validate ChatQnA service
         run: |
-          chmod +x validate.sh
-          bash ./validate.sh ${{ github.event.inputs.LOAD_MODEL_TIME_LIMIT }}  ${{ github.event.inputs.DEPLOY_TYPE }} ${{ github.event.inputs.QUESTION }} 
+          chmod +x chatqna/validate.sh
+          bash ./chatqna/validate.sh ${{ github.event.inputs.LOAD_MODEL_TIME_LIMIT }}  ${{ github.event.inputs.DEPLOY_TYPE }} ${{ github.event.inputs.QUESTION }} 
