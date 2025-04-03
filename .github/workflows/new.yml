@@ -1,23 +1,41 @@
-name: Run Shell Script with User Question
+# This is a basic workflow to help you get started with Actions
 
+name: OPEA ChatQnA deployment - Docker
+run-name: Deploy OPEA ChatQnA on ${{github.event.inputs.RUNNER_NAME}} in ${{github.event.inputs.DEPLOY_TYPE}} mode / Model ${{github.event.inputs.MODEL}} / ${{ github.event.inputs.LOAD_MODEL_TIME_LIMIT }}s
+
+# Controls when the workflow will run
 on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  #push:
+  #  branches: [ "main" ]
+  #pull_request:
+  #  branches: [ "main" ]
+
+  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
     inputs:
-      user_question:
-        description: "What is your name?"
+      DEPLOY_TYPE:
+        description: 'choose cpu or gpu'
         required: true
-        type: string
-
+        default: 'cpu'
+        type: choice
+        options:
+          - 'cpu'
+          - 'gpu'
+      LOAD_MODEL_TIME_LIMIT:
+        description: 'Load model time limit'
+        required: true
+        default: '1000'
+        type: number
+      QUESTION:
+        description: 'Question or Query'
+        required: true
+        default: 'What is the revenue of Nike in 2023?'
 jobs:
-  run-script:
+  validate_services:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Make script executable
-        run: chmod +x script.sh
-
-      - name: Run Shell Script with User Input
-        run: ./script.sh "${{ inputs.user_question }}"
+      - name: Validate ChatQnA service
+        run: |
+          chmod +x validate.sh
+          bash ./validate.sh ${{ github.event.inputs.LOAD_MODEL_TIME_LIMIT }}  ${{ github.event.inputs.DEPLOY_TYPE }} ${{ github.event.inputs.QUESTION }} 
