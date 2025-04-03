@@ -1,41 +1,31 @@
-# This is a basic workflow to help you get started with Actions
+name: Run Shell Script with User Question
 
-name: OPEA ChatQnA deployment - Docker
-run-name: Deploy OPEA ChatQnA on ${{github.event.inputs.RUNNER_NAME}} in ${{github.event.inputs.DEPLOY_TYPE}} mode / Model ${{github.event.inputs.MODEL}} / ${{ github.event.inputs.LOAD_MODEL_TIME_LIMIT }}s
-
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
-  #push:
-  #  branches: [ "main" ]
-  #pull_request:
-  #  branches: [ "main" ]
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
     inputs:
-      DEPLOY_TYPE:
-        description: 'choose cpu or gpu'
+      load_time:
+        description: "Enter Load Time"
         required: true
-        default: 'cpu'
-        type: choice
-        options:
-          - 'cpu'
-          - 'gpu'
-      LOAD_MODEL_TIME_LIMIT:
-        description: 'Load model time limit'
+        type: string
+      deploy_type:
+        description: "Enter Deploy Type"
         required: true
-        default: '1000'
-        type: number
-      QUESTION:
-        description: 'Question or Query'
+        type: string
+      user_question:
+        description: "Enter your question"
         required: true
-        default: 'What is the revenue of Nike in 2023?'
+        type: string
+
 jobs:
-  validate_services:
+  run-script:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Validate ChatQnA service
-        run: |
-          chmod +x chatqna/validate.sh
-          bash ./chatqna/validate.sh ${{ github.event.inputs.LOAD_MODEL_TIME_LIMIT }}  ${{ github.event.inputs.DEPLOY_TYPE }} ${{ github.event.inputs.QUESTION }} 
+      - name: Checkout Repository
+        uses: actions/checkout@v4  # Ensures script exists
+
+      - name: Make script executable
+        run: chmod +x script.sh  # Ensures script has execute permissions
+
+      - name: Run Shell Script with User Input
+        run: ./script.sh "${{ inputs.load_time }}" "${{ inputs.deploy_type }}" "${{ inputs.user_question }}"
